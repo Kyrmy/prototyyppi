@@ -11,3 +11,5 @@ agora_analytica/flask/static/css/*.scss.css.map
 
 instance/*
 instance_*/*
+
+libvoikko-1.dll

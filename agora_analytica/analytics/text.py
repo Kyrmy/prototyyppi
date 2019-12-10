@@ -23,10 +23,30 @@ logger = logging.getLogger(__name__)
 
 class VoikkoTokenizer():
 
+    """
+    Voikko Tokenizer
+    ~~~~~~~~~~~~~~~~
+
+    Getting Voikko to work on Windows
+    =================================
+    - Download voikko DLL into application directory from:
+      https://www.puimula.org/htp/testing/voikko-sdk/win-crossbuild/
+    - Download and extract dictionary files into `instance/voikko` directory:
+      https://www.puimula.org/htp/testing/voikko-snapshot-v5/
+
+      Select one contain morphological data.
+
+    """
+
     """ Tokenize text """
     def __init__(self, lang="fi"):
+
+        # Voikko dictrionary path.
+        dict_path = instance_path() / "voikko"
+        path = str(dict_path) if dict_path.exists() else None
+
         self.stem_map = {}
-        self.voikko = Voikko(lang)
+        self.voikko = Voikko(lang, path=path)
         self.regex_words = re.compile(r"""
             (\w+-(?:\w+)+  # Get wordcharacters conjucated by dash (-)
             |\w{1,}        # OR all word characters len() > 1

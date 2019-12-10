@@ -18,20 +18,25 @@ svg.graph {
   svg.graph .links line {
     stroke: #737373; }
   svg.graph .nodes .node .topic {
-    transition: all 0.3s;
+    transition: all 0.5s;
     font-size: 0.3em;
     fill: #fff;
     filter: drop-shadow(0 0 0.05em black);
     display: none;
     opacity: 0; }
+  svg.graph .nodes .node.filtered {
+    display: none; }
   svg.graph .nodes .node circle {
-    transition: all 0.3s;
+    transition: all 0.5s;
     filter: grayscale(0) blur(0) drop-shadow(0 1px 5px rgba(0, 0, 5, 0.233)); }
   svg.graph .nodes:hover .node.hover circle {
+    stroke-width: 4.8px;
     filter: grayscale(0) blur(0) drop-shadow(0 1px 5px rgba(0, 0, 5, 0.233)); }
   svg.graph .nodes:hover .node.hover .topic {
     opacity: 1;
     display: inline; }
+  svg.graph .nodes:hover .node.related circle {
+    filter: grayscale(0) blur(0) drop-shadow(0 1px 5px rgba(0, 0, 5, 0.233)); }
   svg.graph .nodes:hover .node:not(.hover) circle {
     filter: grayscale(100%) blur(1px) drop-shadow(0 1px 5px rgba(0, 0, 5, 0.233)); }
   svg.graph .nodes .node.active circle {

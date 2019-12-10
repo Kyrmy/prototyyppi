@@ -25,3 +25,34 @@ $(".modal-dialog").draggable({
 });
 })
 }
+
+function ui_init_filters(nodes) {
+    // Kerää puolueet ja vaalipiirit solmuista
+    const parties = ["--"]
+    const constituencies = ["--"]
+
+    // Generoi listat
+    parties.forEach(function(party) {
+        // Generoi HTML elementit, ja sido niihin tapahtumat
+        let list_item = $("<li><lable>").text(party);
+        checkbox.on("click", function() {
+            // Tapahtuma joka tapahtuu kun filtteriä klikataan.
+            // Tässä tulisi kerätäaktiiviset suotimet
+
+            // Filterrisääntöjen kirjoitus on dict/object, jossa avain vastaa nodesin avainta, ja arvo
+            // on lista filtteröitävistä arvoista.
+
+            // HUOMAA: Säännöt toimivat käänteisesti valinnan kanssa, eli ne filteröidään joita EI ole valittu.
+            const filter_rules = {
+                parties: [party, "muu", "party", "jota", "EI", "ole", "valittu"],
+                constituency: ["..."]
+            }
+
+            // Kutsu filtteröintiä.
+            graph_filter(filter_rules)
+        });
+        $("#filter-parties").append(list_item);
+    });
+    // constituencies.forEach(...)
+}
+

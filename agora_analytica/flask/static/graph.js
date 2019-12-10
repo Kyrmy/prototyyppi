@@ -37,7 +37,7 @@ graph.reset = function() {
         .radius(graph.node_radius)
         .strength(0.7 * graph.collide)
 
-    graph.simulation.alphaDecay((graph.decay) ? graph.alpha_decay : 0 )
+    graph.simulation.alphaDecay( 0.01 * graph.decay)
 
     graph.svg.selectAll("defs image.node-image")
         .attr("width", graph.node_radius * 2)
@@ -94,9 +94,27 @@ function process_links(data) {
 
 }
 
+function graph_filter(filter_rules) {
+    console.log("Filteröidään:", filter_rules);
+    graph.svg.selectAll("g.nodes g.node").each(function(data) {
+        for(rule in filter_rules) {
+            // If any of rules matched, this node is to be hidden.
+            if(filter_rules[rule].includes(data[rule])) {
+                d3.select(this).classed("filtered", true);
+                // No need for further processing.
+                return
+            }
+
+        }
+        // No rule matched, can be shown
+        d3.select(this).classed("filtered", false);
+
+    });
+}
+
 function node_color(d) {
     let party = parties.find(function(x) {
-        if(x.itemLabel.includes(d.party)) return true; 
+        if("itemLabel" in x && x.itemLabel.includes(d.party)) return true; 
         if("itemAltLabel" in x) return x.itemAltLabel.includes(d.party)
     });
     let color = party && "sRGB_color_hex_triplet" in party ? "#"+party.sRGB_color_hex_triplet : "#CCC"
@@ -121,7 +139,6 @@ function graph_run() {
         .append("circle")
             .attr("cx", 0)
             .attr("cy", 0)
-            // .attr("r", graph.node_radius)
 
     for(n of nodes) {
         defs.append("pattern")
@@ -144,7 +161,7 @@ function graph_run() {
     let graph_layer = graph.svg.call(graph.zoom).append("g").attr("id", "graph_layer");
 
     graph.simulation = d3.forceSimulation();
-    graph.alpha_decay = graph.simulation.alphaDecay()
+    graph.alpha_decay = 1. - Math.pow(0.001, 1/(300 + (nodes.length * 2)))
 
     let force_link = d3.forceLink()
         .distance(function(d) {
@@ -187,23 +204,22 @@ function graph_run() {
         .on("mouseover", function() {
             // SVG uses ordered rendering. Move focused element to top
             // of node list.
-            let e = d3.select(this).raise();
-            e.classed("hover", true)
+            let e = d3.select(this)
+            e.classed("hover", true).raise();
         }).on("mouseout", function() {
             d3.select(this).classed("hover", false)
         });
-        
+
     var circles = node.append("circle")
         .attr("r", graph.node_radius)
         .attr("stroke", node_color)
         .attr("fill", (d) => "url(#node-"+ d.id +"-image)")
-        .on("click", function(d) {
-            console.log(d);
-            show_node_info(d.id);
-            /*let g = d3.select(this.parentElement);
+        .on("click", function(obj) {
+            show_node_info(obj.id)
+            let g = d3.select(this.parentElement);
 
             var toggle = !g.classed("active");
-            g.classed("active", toggle);*/
+            g.classed("active", toggle);
         });
 
     const topics = graph.topics;
@@ -219,10 +235,17 @@ function graph_run() {
                     .text((d) => d.term)
     });
 
-    /* Topic texts are hidden by default, and position is not updated for them in simulation.
-       Update positions by event trigger. */
-    node.on("mouseover.topic", function() {
+    node.on("mouseover.reposition_topic", function() {
+        /* Topic texts are hidden by default, and position is not updated for them in simulation.
+           Update positions by event trigger. */
         d3.select(this).selectAll("g.topic").each(function(e){align_topic_texts(this)})
+
+        const self = d3.select(this).data()[0]
+        graph.links.filter(function(d) { return d.source == self || d.target == self }).forEach(function(e) {
+            console.log(d3.select(e.target))
+            if(self == d3.select(e.target))
+                d3.select(each.target).classed("related", True)
+        });
     });
 
     var labels = node.append("text")
@@ -234,10 +257,12 @@ function graph_run() {
         .attr('y', graph.node_radius);
 
     node.append("title")
-        .text(function(d) { return d.id+": "+d.name+"\n"+d.party; });
+        .text(function(d) { return d.id+": "+d.name+"\n"+d.party+"\n"+d.constituency; });
 
+
+            
     function ticked() {
-        graph.svg.classed("cooled", this.alpha() <= this.alphaMin())
+        graph.svg.classed("cooled", this.alpha() <= Math.max(this.alphaMin(), 0.05))
 
         link
             .attr("x1", function(d) { return d.source.x; })

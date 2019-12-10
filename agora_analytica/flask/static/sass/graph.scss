@@ -1,6 +1,7 @@
 svg.graph {
 
     $color: #fff;
+    $node-stroke-width: 4px;
     background: rgba(233,233,233,1);
     display: block;
     &.running {
@@ -26,7 +27,7 @@ svg.graph {
     .nodes {
         .node {
             circle {
-                stroke-width: 4px;
+                stroke-width: $node-stroke-width;
             }
         }
     }
@@ -38,7 +39,7 @@ svg.graph {
         }
     }
 
-    $transition-base: all 0.3s;
+    $transition-base: all 0.5s;
     $node-drop-shadow: drop-shadow( 0 1px 5px rgba(0,0,5px,0.233) );
 
     .nodes {
@@ -53,6 +54,10 @@ svg.graph {
             opacity: 0;
         }
 
+        .node.filtered {
+            display: none;
+        }
+
         .node circle {
             transition: $transition-base;
             filter: grayscale(0) blur(0) $node-drop-shadow;
@@ -62,6 +67,7 @@ svg.graph {
             .node {
                 &.hover {
                     circle {
+                        stroke-width: $node-stroke-width * 1.2;
                         filter: grayscale(0) blur(0) $node-drop-shadow;
                     }
 
@@ -69,6 +75,9 @@ svg.graph {
                         opacity:1;
                         display: inline;
                     }
+                }
+                &.related circle {
+                    filter: grayscale(0) blur(0) $node-drop-shadow;
                 }
                 &:not(.hover) {
                     circle {

@@ -67,9 +67,7 @@ def deploy(target, url, force=False):
 
 
 @cli.command()
-@click.option("--target", type=click.Path(file_okay=False),
-                          default=instance_path(),
-                          show_default=True)
+@click.option("--target", type=click.Path(file_okay=False))
 @click.option("--dataset-name", default="yle_2019", show_default=True)
 def download(target, dataset_name):
     """
@@ -126,12 +124,12 @@ def build(target, method, dataset_name, limit: int = 50):
 
     for a in range(n):
         for b in range(a + 1, n):
-            i = texts_df.index[a]
-            l = texts_df.index[b]
-            r = topics.compare_rows(texts_df, i, l)
+            a_idx = texts_df.index[a]
+            b_idx = texts_df.index[b]
+            r = topics.compare_rows(texts_df, a_idx, b_idx)
             if r:
-                words[(i, l)] = r[0][1]
-                words[(l, i)] = r[1][1]
+                words[(a_idx, b_idx)] = r[0][1]
+                words[(b_idx, a_idx)] = r[1][1]
 
     click.echo("[DONE]")
 
